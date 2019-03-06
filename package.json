@@ -23,6 +23,9 @@
 	},
 	"scripts": {
 		"start": "parcel index.html",
-		"build": "parcel build index.html -d build --public-url ./"
-	}
+		"build": "parcel build index.html -d build --public-url ./",
+		"predepoly": "yarn build",
+		"deploy": "gh-pages -d build"
+	},
+	"homepage": "http://antnf3.github.io/parcel-test"
 }
