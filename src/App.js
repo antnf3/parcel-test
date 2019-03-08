@@ -1,33 +1,50 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styles from './styles.scss';
+
+const API_KEY = 'bb2e7b1915621c57331bcfb02a1c8929';
 
 class App extends Component {
 	state = {};
 
 	componentDidMount() {
-		this._getMovies();
+		this._getGeolocation();
 	}
 
-	_getMovies = async () => {
-		const movies = await this._callAPI();
-		this.setState({
-			movies,
-		});
-		console.log(movies);
-	};
+	_getGeolocation() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				position => {
+					//console.log(`${position.coords.latitude} ${position.coords.longitude}`);
+					this._getWeatherAPI(position.coords.latitude, position.coords.longitude);
+				},
+				err => {
+					console.log(err);
+				}
+			);
+		} else {
+		}
+	}
 
-	_callAPI = () => {
-		return fetch('https://yts.am/api/v2/list_movies.json?sort_by=download_count')
-			.then(res => res.json())
+	_getWeatherAPI = (lat, lon) => {
+		fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&APPID=${API_KEY}`)
+			.then(response => response.json())
 			.then(json => {
-				return json.data.movies;
-			})
-			.catch(err => console.log(err));
+				this.setState({
+					temperature: json.main.temp,
+					name: json.weather[0].main,
+					isLoaded: true,
+				});
+			});
 	};
 
 	render() {
-		const { movies } = this.state;
-		return <div>aaaaa</div>;
+		const { temperature, name, isLoaded } = this.state;
+		return (
+			<Fragment>
+				<div className={styles.title}>{isLoaded ? name : 'loading...'}</div>
+				<div>{temperature}</div>
+			</Fragment>
+		);
 	}
 }
 
